@@ -6,7 +6,7 @@ from flask import (
 )
 from .models import plant_location
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+bp = Blueprint('api', __name__, url_prefix='/api/v1')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', }
 
 
@@ -26,7 +26,7 @@ def plant_locations_list():
             "longitude": plant['longitude'],
             "image_path": plant['image_path'],
         } for plant in plant_locations],
-        "status": "ok",
+        "status": "Ok",
     }
 
 
@@ -40,7 +40,7 @@ def plant_locations_create():
         or 'latitude' not in request.form
         or 'longitude' not in request.form
     ):
-        return "Bad Request", 400
+        return {'status': 'Bad request', 'error': 'Missing fields'}, 400
 
     image_path = None
 
@@ -49,13 +49,13 @@ def plant_locations_create():
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            return "Bad Request", 400
+            return {'status': 'Bad request', 'error': 'File not selected'}, 400
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(current_app.config['MEDIA_PATH'], filename))
             image_path = current_app.config['MEDIA_URL'] + filename
         else:
-            return "Bad Request", 400
+            return {'status': 'Bad request', 'error': 'Invalid file'}, 400
         
 
     plant_location.create(
@@ -65,4 +65,4 @@ def plant_locations_create():
         image_path
     )
 
-    return 'Created', 201
+    return {'status': 'Created'}, 201
