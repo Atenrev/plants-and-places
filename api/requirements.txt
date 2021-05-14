@@ -1,2 +1,5 @@
 flask
-flask-pymongo
+datetime 
+uuid
+flask_sqlalchemy 
+flask_jwt_extended

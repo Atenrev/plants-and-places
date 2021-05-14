@@ -1,13 +1,19 @@
 import os
 from flask import Flask, send_from_directory
+from .models import db
+from .auth import jwt
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    db_path = os.path.join(app.instance_path, 'flaskr.sqlite')
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        JWT_SECRET_KEY='dev',
+        # DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SQLALCHEMY_DATABASE_URI=f'sqlite:///{db_path}',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MEDIA_PATH=os.path.join(app.instance_path, 'uploads'),
         MEDIA_URL='/uploads/',
     )
@@ -21,7 +27,6 @@ def create_app(test_config=None):
 
     # ensure the instance folder exists
     try:
-        print(app.config['MEDIA_PATH'])
         os.makedirs(app.instance_path)
         os.makedirs(app.config['MEDIA_PATH'])
     except OSError:
@@ -31,8 +36,8 @@ def create_app(test_config=None):
     from . import api
     app.register_blueprint(api.bp)
 
-    from . import db
     db.init_app(app)
+    jwt.init_app(app)
 
     @app.route('/uploads/<filename>')
     def media(filename):
