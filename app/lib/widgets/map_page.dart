@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:plants_and_places/plant_location_model.dart';
+import '../models/plant_location_model.dart';
 import 'package:plants_and_places/services.dart';
 import 'package:plants_and_places/widgets/loading.dart';
-import 'package:plants_and_places/widgets/dialogs.dart';
 import 'package:plants_and_places/widgets/plant_detail_page.dart';
 
 class MapPage extends StatefulWidget {
@@ -39,7 +38,7 @@ class _MapPageState extends State<MapPage> {
         markerId: MarkerId(id.toString()),
         position: LatLng(element.latitude, element.longitude),
         infoWindow: InfoWindow(
-            title: element.name,
+            title: element.plant,
             snippet: "Fes click per veure aquesta flor.",
             onTap: () =>
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
