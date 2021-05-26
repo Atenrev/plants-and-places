@@ -94,6 +94,8 @@ class _UploadPageState extends State<UploadPage> {
       return;
     }
 
+    plantName = plantName.substring(0, plantName.length - 1);
+
     PlantLocationModel plantLocation = new PlantLocationModel(
       plant: plantName,
       imageFile: _image,
