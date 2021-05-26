@@ -30,6 +30,7 @@ def signup():
 
     if request_data is None:
         return {'status': 'Bad request', 'error': 'Missing fields.'}, 400
+
     missing_fields = [field for field in
                       ['username', 'password1', 'password2']
                       if field not in request_data]
@@ -77,7 +78,6 @@ def login():
         }, 400
 
     user = User.get_by_username(request_data['username'])
-    print(user, request_data['username'])
 
     if user is None or not user.check_password(request_data['password']):
         return {
@@ -111,7 +111,6 @@ def refresh_token():
 @bp.route('/plants/', methods=('GET', ))
 def plant_locations_list():
     plant_locations = PlantLocation.query.all()
-    print(plant_locations)
 
     return {
         "data": [{
@@ -151,6 +150,7 @@ def plant_locations_list_username(username):
 def plant_locations_create():
     if request.form is None:
         return {'status': 'Bad request', 'error': 'Missing fields.'}, 400
+
     missing_fields = [field for field in
                       ['plant', 'latitude', 'longitude']
                       if field not in request.form]

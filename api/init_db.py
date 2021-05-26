@@ -1,3 +1,3 @@
-from flaskr import db
-from flaskr import create_app
+from plantsnplaces import db
+from plantsnplaces import create_app
 db.create_all(app=create_app())
