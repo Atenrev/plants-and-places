@@ -62,6 +62,8 @@ class _UploadPageState extends State<UploadPage> {
       },
     );
 
+    if (type == null) return;
+
     final ProgressDialog loadingDialog = buildProgressDialog(context);
     loadingDialog.style(message: "Identificant planta...");
     await loadingDialog.show();
