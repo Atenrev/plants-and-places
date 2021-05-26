@@ -4,7 +4,8 @@ import 'package:plants_and_places/constants.dart';
 
 class PlantLocationModel {
   final int id;
-  final String name;
+  final String plant;
+  final String user;
   final String image;
   final File imageFile;
   final double latitude;
@@ -12,7 +13,8 @@ class PlantLocationModel {
 
   PlantLocationModel(
       {this.id,
-      this.name,
+      this.plant,
+      this.user,
       this.image,
       this.imageFile,
       this.latitude,
@@ -20,15 +22,19 @@ class PlantLocationModel {
 
   factory PlantLocationModel.fromJson(Map<String, dynamic> json) {
     return PlantLocationModel(
-        id: json['id'],
-        name: json['name'],
-        image: json['image_path'] != null ? SERVER_DOMAIN + json['image_path'] : null,
-        latitude: json['latitude'],
-        longitude: json['longitude']);
+      id: json['id'],
+      plant: json['plant'],
+      user: json['user'],
+      image: json['image_path'] != null
+          ? SERVER_DOMAIN + json['image_path']
+          : null,
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+    );
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'name': name,
+        'plant': plant,
         'latitude': latitude.toString(),
         'longitude': longitude.toString(),
       };

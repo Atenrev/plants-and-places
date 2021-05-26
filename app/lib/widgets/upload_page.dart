@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:plants_and_places/plant_location_model.dart';
 import 'package:plants_and_places/services.dart';
 import 'package:plants_and_places/widgets/dialogs.dart';
 import 'package:plants_and_places/widgets/progress_dialog.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:geolocator/geolocator.dart';
+import '../models/plant_location_model.dart';
 
 class UploadPage extends StatefulWidget {
   const UploadPage({Key key}) : super(key: key);
@@ -33,27 +33,79 @@ class _UploadPageState extends State<UploadPage> {
   }
 
   Future _uploadImage() async {
+    if (_image == null) {
+      await showErrorDialog(
+        context,
+        title: "Imatge no seleccionada",
+        message:
+            "No heu seleccionat cap imatge. Seleccioneu-ne una per a continuar.",
+      );
+      return;
+    }
+
+    Position currentLocation = await getCurrentLocation(context);
+
+    String type;
+    await showConfirmationDialog(
+      context,
+      title: "Què estàs identificant",
+      message: "Si us plau, indica quina part de la planta estàs identificant.",
+      confirmText: "Flor",
+      cancelText: "Fulla",
+      confirmFunction: () {
+        type = "flower";
+        Navigator.pop(context);
+      },
+      cancelFunction: () {
+        type = "leaf";
+        Navigator.pop(context);
+      },
+    );
+
     final ProgressDialog loadingDialog = buildProgressDialog(context);
     loadingDialog.style(message: "Identificant planta...");
     await loadingDialog.show();
 
-    // TODO: Crida a l'API de cloud vision
-    String plantName = "test-android";
-    loadingDialog.style(message: "Compartint amb la comunitat...");
+    APIResponse idResponse = await RESTAPI.identifyPlant(_image, type);
 
-    Position currentLocation = await getCurrentLocation(context);
+    if (!idResponse.success) {
+      loadingDialog.hide();
+      await showErrorDialog(
+        context,
+        title: "S'ha produït un error",
+        message: "S'ha produït un error i no s'ha pogut identificar la planta.",
+      );
+      return;
+    }
+
+    String plantName;
+    try {
+      plantName =
+          (idResponse.object as Map)['results'][0]['species']['scientificName'];
+    } catch (e) {
+      loadingDialog.hide();
+      await showErrorDialog(
+        context,
+        title: "S'ha produït un error",
+        message: "S'ha produït un error i no s'ha pogut identificar la planta.",
+      );
+      return;
+    }
+
     PlantLocationModel plantLocation = new PlantLocationModel(
-      name: plantName,
+      plant: plantName,
       imageFile: _image,
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
     );
+    loadingDialog.style(message: "Compartint amb la comunitat...");
+
     APIResponse response = await RESTAPI.createPlantLocation(plantLocation);
     await loadingDialog.hide();
 
     if (response.success) {
       setState(() {
-          _image = null;
+        _image = null;
       });
 
       await showSuccessDialog(
